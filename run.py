@@ -7,7 +7,7 @@ import os # For terminal clearing
 import random # For Generating random strong passwords
 import getch # Capture and record Keypresses
 import re # For checking password strength
-from colorama import Fore, Back, Style # Colors
+from colorama import Fore, Back, Style, init # Colors
 from google.oauth2.service_account import Credentials # Creds
 from consolemenu import * # Menu Generation
 from consolemenu.items import * # Menu Item Generation
@@ -18,6 +18,7 @@ from pyhibp import pwnedpasswords as pw # Library for interacting with 'Have I B
 from pprint import pprint # Temp, for debugging
 
 os.system("clear")
+init(autoreset=True) # Colorama styling auto reset 
 
 SCOPE = [
     "https://www.googleapis.com/auth/spreadsheets",
@@ -136,36 +137,74 @@ print(Style.RESET_ALL)
 print('back to normal now')
 
 # Password Strength Checker
-def check_pass(p):
-    if len(p) < 8:
-        return False
-    strong_pass = [False, False, False, False]
-    for num,x in enumerate(p5):
-        for i in x:
-            if i in p:
-                strong_pass[num] = True
-                continue
-    return all(strong_pass)
+
+# 1: Length, 2: Uppercase, 3: Lowercase, 4: Number, 5: Special Character
+
+def strong_password(password):
+
+    # 1: Length, 2: Uppercase, 3: Lowercase, 4: Number, 5: Special Character
+    strong_pass = []
+    strong_pass.append(len(password) >= 8)
+    strong_pass.append(bool(re.search("[A-Z]", password)))
+    strong_pass.append(bool(re.search("[a-z]", password)))
+    strong_pass.append(bool(re.search("[0-9]", password)))
+    strong_pass.append(bool(re.search(r'[!@#$%^&*()\[\]\-=_\\|;:,.<>?/~`"]', password)))
+
+    # Write out Password Characteristics
+
+    if all(strong_pass):
+        print(Back.GREEN + ' PASSWORD IS STRONG \n')
+    else:
+        print(Back.RED + ' PASSWORD IS TOO WEAK \n')
+
+    if strong_pass[0]:
+        print(Back.GREEN + ' Password is at least 8 characters long ')
+    else:
+        print(Back.RED + ' Password needs to be at least 8 characters long ')
+
+    if strong_pass[1]:
+        print(Back.GREEN + ' Password contains an uppercase letter ')
+    else:
+        print(Back.RED + ' Password does not contain an uppercase letter ')
+
+
+    if strong_pass[2]:
+        print(Back.GREEN + ' Password contains a lowercase letter ')
+    else:
+        print(Back.RED + ' Password does not contain a lowercase letter ')
+
+
+    if strong_pass[3]:
+        print(Back.GREEN + ' Password contains a number letter ')
+    else:
+        print(Back.RED + ' Password does not contain a number letter ')
+
+    if strong_pass[4]:
+        print(Back.GREEN + ' Password contains a special character ')
+    else:
+        print(Back.RED + ' Password does not contain a special character ' + Style.RESET_ALL)  
+        print('Please include any one of these:')
+        print('!@#$%^&*()-_=[]|;:,.<>?/~`"')
+    print(Style.RESET_ALL)
+    return ''
 
 # Random Password Generation
-password_length = 12
+password_length = 5
 
-print('Here we go...')
 p1 = [i for i in 'ABCDEFGHIJKLMNOPQRSTUVWXYZ']
 p2 = [i for i in 'abcdefghijklmnopqrstuvwxyz']
 p3 = [i for i in '0123456789']
 p4 = [i for i in '!@#$%^&*()-_=[]|;:,.<>?/~`"']
 p5 = [p1, p2, p3, p4]
 
-for i in range(10):
+for i in range(3):
     new_password = ''
     for i in range(password_length):
         item = random.choice(p5)
         new_password += random.choice(item)
-
-    print(new_password)
-    print(check_pass(new_password))
-    print('\n')
+    print(' Password = ' + Fore.YELLOW + ' ' + new_password + ' ')
+    print(Style.RESET_ALL)
+    print(strong_password(new_password))
 
 
 
